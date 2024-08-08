@@ -196,6 +196,7 @@ class ChatWidgetState extends State<ChatWidget> with WidgetsBindingObserver {
 
     String injectedScript = '''
       (function () {
+        console.log("Injecting chat widget script");
 
         var helloConfig = {
           widgetToken: '${widget.widgetToken}',
@@ -228,6 +229,7 @@ class ChatWidgetState extends State<ChatWidget> with WidgetsBindingObserver {
 
         function loadOrOpenChatWidget() {
           if (typeof window.chatWidget !== 'undefined') {
+            console.log("Chat widget script already injected, opening chat widget");
             window.chatWidget.open();
             window.flutter_inappwebview.callHandler('widgetLoaded');
           } else {
@@ -237,13 +239,16 @@ class ChatWidgetState extends State<ChatWidget> with WidgetsBindingObserver {
             document.head.appendChild(JScript);
 
             JScript.onload = function() {
+              console.log("Chat widget script loaded");
 
               setTimeout(function() {
                 if (typeof initChatWidget !== 'undefined') {
+                  console.log("Initializing chat widget");
                   initChatWidget(helloConfig, 0);
                   setTimeout(function() {
                     if (typeof window.chatWidget !== 'undefined') {
                       window.chatWidget.open();
+                      console.log("Chat widget opened");
                       window.flutter_inappwebview.callHandler('widgetLoaded');
                     } else {
                       console.error('window.chatWidget is not defined.');
@@ -286,6 +291,8 @@ class ChatWidgetState extends State<ChatWidget> with WidgetsBindingObserver {
 
   Future<void> _handleWidgetEvents(String eventData) async {
     final data = jsonDecode(eventData);
+    log("----data: $data");
+    print("----data------: $data");
     if (data['widgetClose'] == true) {
       setState(() {
         showView = false;
@@ -306,7 +313,7 @@ class ChatWidgetState extends State<ChatWidget> with WidgetsBindingObserver {
   }
 
   void _registerForCobrowse(String uuid) async {
-    // log("Registering for co-browsing with UUID: $uuid");
+    log("Registering for co-browsing with UUID: $uuid");
     // await CobrowseIO.start(" FZBGaF9-Od0GEQ", {'device_id': uuid});
 
     // if (!await CobrowseIO.accessibilityServiceIsRunning()) {
