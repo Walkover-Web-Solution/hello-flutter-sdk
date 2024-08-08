@@ -1,7 +1,7 @@
 name: hello_flutter_sdk
 description: "Hello Chat Widget by MSG91"
-version: 0.0.1
-homepage: https://github.com/Walkover-Web-Solution/hello-flutter-sdk
+version: 0.0.2
+homepage: https://msg91.com/in/hello
 repository: https://github.com/Walkover-Web-Solution/hello-flutter-sdk
 
 environment:

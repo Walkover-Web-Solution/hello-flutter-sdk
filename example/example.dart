@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_hello_sdk/flutter_hello_sdk.dart';
-
+import 'package:hello_flutter_sdk/hello_flutter_sdk.dart';
 void main() {
   runApp(const MyApp());
 }
