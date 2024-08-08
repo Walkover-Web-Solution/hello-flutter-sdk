@@ -1,0 +1,27 @@
+name: hello_flutter_sdk
+description: "Hello Chat Widget by MSG91"
+version: 0.0.1
+homepage: https://github.com/Walkover-Web-Solution/hello-flutter-sdk
+repository: https://github.com/Walkover-Web-Solution/hello-flutter-sdk
+
+environment:
+  sdk: '>=3.4.4 <4.0.0'
+  flutter: ">=1.17.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+  flutter_inappwebview: ^6.0.0
+  url_launcher: ^6.3.0
+  flutter_statusbarcolor_ns: ^0.5.0  
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^3.0.0
+
+# For information on the generic Dart part of this file, see the
+# following page: https://dart.dev/tools/pub/pubspec
+
+# The following section is specific to Flutter packages.
+flutter:
