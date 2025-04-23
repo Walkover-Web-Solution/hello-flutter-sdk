@@ -11,11 +11,11 @@ class ChatWidget extends StatefulWidget {
   final String widgetToken;
   final Color widgetColor;
   final String uniqueId;
-  bool hideLauncher;
-  bool showWidgetForm;
-  bool showCloseButton;
-  bool launchWidget;
-  bool showSendButton;
+  final bool hideLauncher;
+  final bool showWidgetForm;
+  final bool showCloseButton;
+  final bool launchWidget;
+  final bool showSendButton;
   final String? name;
   final String? number;
   final String? userJwtToken;
@@ -122,12 +122,10 @@ class ChatWidgetState extends State<ChatWidget> with WidgetsBindingObserver {
                     url: WebUri(
                         "https://control.msg91.com/app/assets/dummy-page/index.html"),
                   ),
-                  initialOptions: InAppWebViewGroupOptions(
-                    crossPlatform: InAppWebViewOptions(
-                      javaScriptEnabled: true,
-                      useOnLoadResource: true,
-                      useShouldOverrideUrlLoading: true,
-                    ),
+                  initialSettings: InAppWebViewSettings(
+                    javaScriptEnabled: true,
+                    useOnLoadResource: true,
+                    useShouldOverrideUrlLoading: true,
                   ),
                   onWebViewCreated: (controller) {
                     _webViewController = controller;
@@ -185,7 +183,7 @@ class ChatWidgetState extends State<ChatWidget> with WidgetsBindingObserver {
                             Colors.transparent);
                       }
                     },
-                    child: widget.button ?? Container(),
+                    child: widget.button,
                   ),
                 ),
             ],
