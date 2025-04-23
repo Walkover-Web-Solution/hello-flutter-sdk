@@ -103,13 +103,14 @@ Below are the properties available for customizing the Widget.
 | ---------------------------- | ----------------- | ------- |
 | widgetToken                  | String (Required) | Get Hello widget token from Widget settings > Integration |
 | widgetColor                  | Color (Required) | Sets StatusBar color and widget's background color |
+| uniqueId               | String (Required)           | Prefered unique Id to register the user          |
+| userJwtToken               | String           | Identity Verification must be enabled to use this prop        |
 | name                  | String | Predefine the name of the client|
 | number                  | String | Predefine the number of the client|
 | mail                  | String | Predefine the mail of the client|
 | country                  | String | Predefine the country of the client|
 | city                  | String | Predefine the city of the client|
 | region                  | String | Predefine the region of the client|
-| uniqueId               | String            | Prefered unique Id to register the user          |
 | showWidgetForm                    | boolean           |  Override default widget show client form settings|
 | showSendButton                    | boolean           |  Override default show send button widget settings|
 | button                    | Widget           |  Create your own custom button widget|

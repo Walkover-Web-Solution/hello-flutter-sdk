@@ -18,6 +18,7 @@ class ChatWidget extends StatefulWidget {
   bool showSendButton;
   final String? name;
   final String? number;
+  final String? userJwtToken;
   final String? mail;
   final String? country;
   final String? city;
@@ -39,6 +40,7 @@ class ChatWidget extends StatefulWidget {
       this.name,
       this.number,
       this.mail,
+      this.userJwtToken,
       this.country,
       this.city,
       this.region,
@@ -144,9 +146,12 @@ class ChatWidgetState extends State<ChatWidget> with WidgetsBindingObserver {
                   shouldOverrideUrlLoading:
                       (controller, navigationAction) async {
                     final url = navigationAction.request.url.toString();
-                    if (await canLaunch(url)) {
-                      await launch(url,
-                          forceSafariVC: false, forceWebView: false);
+                    if (url
+                        .contains("control.msg91.com/app/assets/dummy-page")) {
+                      return NavigationActionPolicy.ALLOW;
+                    }
+                    if (await canLaunchUrl(Uri.parse(url))) {
+                      await launchUrl(Uri.parse(url));
                       return NavigationActionPolicy.CANCEL;
                     }
                     return NavigationActionPolicy.ALLOW;
@@ -208,6 +213,7 @@ class ChatWidgetState extends State<ChatWidget> with WidgetsBindingObserver {
           unique_id: '${widget.uniqueId}',
           name: '${widget.name ?? ''}',
           number: '${widget.number ?? ''}',
+          user_jwt_token: '${widget.userJwtToken ?? ''}',
           mail: '${widget.mail ?? ''}',
           country: '${widget.country ?? ''}',
           city: '${widget.city ?? ''}',
@@ -292,7 +298,6 @@ class ChatWidgetState extends State<ChatWidget> with WidgetsBindingObserver {
   Future<void> _handleWidgetEvents(String eventData) async {
     final data = jsonDecode(eventData);
     log("----data: $data");
-    print("----data------: $data");
     if (data['widgetClose'] == true) {
       setState(() {
         showView = false;
@@ -324,8 +329,8 @@ class ChatWidgetState extends State<ChatWidget> with WidgetsBindingObserver {
   }
 
   void _openUrlExternally(String url) async {
-    if (await canLaunch(url)) {
-      await launch(url, forceSafariVC: false, forceWebView: false);
+    if (await canLaunchUrl(Uri.parse(url))) {
+      await launchUrl(Uri.parse(url));
     } else {
       log("Could not launch URL: $url");
     }
