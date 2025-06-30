@@ -1,5 +1,7 @@
 # Flutter Chat Widget by MSG91 # HelloSDK
-
+<br/>
+<img src="https://raw.githubusercontent.com/Walkover-Web-Solution/hello-flutter-sdk/main/resources/banner.jpg" width="100%" align="left" />
+<br/>
  
 ## Getting started
 
