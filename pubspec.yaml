@@ -1,6 +1,6 @@
 name: hello_flutter_sdk
 description: "Hello Chat Widget SDK by MSG91: A plug-and-play chat widget by MSG91 for integrating real-time user support in Flutter apps"
-version: 0.0.3
+version: 1.0.0
 homepage: https://msg91.com/in/hello
 repository: https://github.com/Walkover-Web-Solution/hello-flutter-sdk
 
@@ -11,9 +11,8 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  flutter_inappwebview: ^6.0.0
-  url_launcher: ^6.3.0
-  flutter_statusbarcolor_ns: ^0.5.0  
+  flutter_inappwebview: ^6.1.5
+  url_launcher: ^6.3.1
 
 dev_dependencies:
   flutter_test:

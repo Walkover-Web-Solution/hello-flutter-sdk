@@ -1,10 +1,7 @@
 import 'dart:convert';
 import 'dart:developer';
-
-// import 'package:cobrowseio_flutter/cobrowseio_flutter.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
-import 'package:flutter_statusbarcolor_ns/flutter_statusbarcolor_ns.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class ChatWidget extends StatefulWidget {
@@ -58,10 +55,6 @@ class ChatWidgetState extends State<ChatWidget> with WidgetsBindingObserver {
   bool initialLoading = false;
   bool showView = false;
 
-  Future<void> changeStatusBarColor() async {
-    await FlutterStatusbarcolor.setStatusBarColor(widget.widgetColor);
-  }
-
   @override
   void initState() {
     WidgetsBinding.instance.addObserver(this);
@@ -76,25 +69,6 @@ class ChatWidgetState extends State<ChatWidget> with WidgetsBindingObserver {
     super.dispose();
   }
 
-  @override
-  void didChangeAppLifecycleState(AppLifecycleState state) {
-    switch (state) {
-      case AppLifecycleState.resumed:
-        changeStatusBarColor();
-        break;
-      case AppLifecycleState.inactive:
-        changeStatusBarColor();
-        break;
-      case AppLifecycleState.paused:
-        changeStatusBarColor();
-        break;
-      case AppLifecycleState.detached:
-        changeStatusBarColor();
-        break;
-      case AppLifecycleState.hidden:
-        changeStatusBarColor();
-    }
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -126,6 +100,7 @@ class ChatWidgetState extends State<ChatWidget> with WidgetsBindingObserver {
                     javaScriptEnabled: true,
                     useOnLoadResource: true,
                     useShouldOverrideUrlLoading: true,
+                    allowsBackForwardNavigationGestures: true,
                   ),
                   onWebViewCreated: (controller) {
                     _webViewController = controller;
@@ -144,10 +119,10 @@ class ChatWidgetState extends State<ChatWidget> with WidgetsBindingObserver {
                   shouldOverrideUrlLoading:
                       (controller, navigationAction) async {
                     final url = navigationAction.request.url.toString();
-                    if (url
-                        .contains("control.msg91.com/app/assets/dummy-page")) {
+                    if (url.contains("dummy-page") || 
+                        url.contains("blacksea") || url.contains("chat-widget")) {
                       return NavigationActionPolicy.ALLOW;
-                    }
+                    } 
                     if (await canLaunchUrl(Uri.parse(url))) {
                       await launchUrl(Uri.parse(url));
                       return NavigationActionPolicy.CANCEL;
@@ -161,9 +136,6 @@ class ChatWidgetState extends State<ChatWidget> with WidgetsBindingObserver {
                       _loadChatWidget();
                     }
                   },
-                  onConsoleMessage: (controller, consoleMessage) {
-                    log("Console message: ${consoleMessage.message}");
-                  },
                 ),
               ),
               if (initialLoading)
@@ -176,12 +148,6 @@ class ChatWidgetState extends State<ChatWidget> with WidgetsBindingObserver {
                         showView = !showView;
                       });
                       widget.onLaunchWidget();
-                      if (showView) {
-                        await changeStatusBarColor();
-                      } else {
-                        await FlutterStatusbarcolor.setStatusBarColor(
-                            Colors.transparent);
-                      }
                     },
                     child: widget.button,
                   ),
@@ -198,9 +164,7 @@ class ChatWidgetState extends State<ChatWidget> with WidgetsBindingObserver {
         '#${widget.widgetColor.value.toRadixString(16).substring(2).toUpperCase()}';
 
     String injectedScript = '''
-      (function () {
-        console.log("Injecting chat widget script");
-
+      (function () { 
         var helloConfig = {
           widgetToken: '${widget.widgetToken}',
           hide_launcher: ${widget.hideLauncher},
@@ -223,27 +187,20 @@ class ChatWidgetState extends State<ChatWidget> with WidgetsBindingObserver {
             borderRadiusDisable: true,
             customTheme: '$customThemeHex',
           },
-          widgetClose: (data) => {
-            window.flutter_inappwebview.callHandler('widgetEventHandler', JSON.stringify({widgetClose: true}));
-          },
-          widgetClientData: (data) => {
-            window.flutter_inappwebview.callHandler('widgetEventHandler', JSON.stringify(data));
-          },
+          
         };
 
         function loadOrOpenChatWidget() {
           if (typeof window.chatWidget !== 'undefined') {
-            console.log("Chat widget script already injected, opening chat widget");
             window.chatWidget.open();
             window.flutter_inappwebview.callHandler('widgetLoaded');
           } else {
             var JScript = document.createElement('script');
             JScript.id = 'chat-widget-script';
-            JScript.setAttribute('src','https://control.msg91.com/app/assets/widget/chat-widget.js');
+            JScript.setAttribute('src','https://blacksea.msg91.com/chat-widget.js');
             document.head.appendChild(JScript);
 
             JScript.onload = function() {
-              console.log("Chat widget script loaded");
 
               setTimeout(function() {
                 if (typeof initChatWidget !== 'undefined') {
@@ -252,7 +209,6 @@ class ChatWidgetState extends State<ChatWidget> with WidgetsBindingObserver {
                   setTimeout(function() {
                     if (typeof window.chatWidget !== 'undefined') {
                       window.chatWidget.open();
-                      console.log("Chat widget opened");
                       window.flutter_inappwebview.callHandler('widgetLoaded');
                     } else {
                       console.error('window.chatWidget is not defined.');
@@ -270,7 +226,19 @@ class ChatWidgetState extends State<ChatWidget> with WidgetsBindingObserver {
             document.head.appendChild(metaTag);
           }
         }
-
+          window.addEventListener("message", function(event) {
+          try {
+           let parsedData;
+              try {
+                parsedData = typeof event.data === "string" ? JSON.parse(event.data) : event.data;
+              } catch (e) {
+                parsedData = event.data;
+              } 
+              window.flutter_inappwebview.callHandler('widgetEventHandler', JSON.stringify(parsedData));
+          } catch (e) {
+            console.error("Failed to forward postMessage to Flutter", e);
+          }
+        });
         loadOrOpenChatWidget();
       })();
     ''';
@@ -289,40 +257,36 @@ class ChatWidgetState extends State<ChatWidget> with WidgetsBindingObserver {
         window.chatWidget.open();
       }
     ''';
-
     _webViewController?.evaluateJavascript(source: openChatScript);
   }
 
   Future<void> _handleWidgetEvents(String eventData) async {
     final data = jsonDecode(eventData);
-    log("----data: $data");
-    if (data['widgetClose'] == true) {
+    final type = data['type'];
+    final inner = data['data'];
+
+    if (type == 'close') {
       setState(() {
         showView = false;
       });
       widget.onHideWidget();
-      if (showView) {
-        await changeStatusBarColor();
-      } else {
-        await FlutterStatusbarcolor.setStatusBarColor(Colors.transparent);
-      }
-    } else if (data['uuid'] != null) {
-      final uuid = data['uuid'];
-      _registerForCobrowse(uuid);
-    } else if (data['downloadAttachment'] == true) {
-      final attachmentUrl = data['attachment_url'];
-      _openUrlExternally(attachmentUrl);
+    } else if (type == 'downloadAttachment') {
+      final url = inner is Map ? inner['url'] : inner;
+      _openUrlExternally(url);
+    } else if (type == 'openLink') {
+      final url = inner is Map ? inner['url'] : inner;
+      _openUrlExternally(url);
     }
+    // else if (data['uuid'] != null) {
+    //   _registerForCobrowse(data['uuid']);
+    // }
   }
 
   void _registerForCobrowse(String uuid) async {
-    log("Registering for co-browsing with UUID: $uuid");
-    // await CobrowseIO.start(" FZBGaF9-Od0GEQ", {'device_id': uuid});
-
+    // await CobrowseIO.start(" FZBGaF9-Od0GEQ", {'device_id': uuid}); 
     // if (!await CobrowseIO.accessibilityServiceIsRunning()) {
     //   CobrowseIO.accessibilityServiceOpenSettings();
     // }
-
     // CobrowseIO.accessibilityServiceShowSetup();
   }
 
